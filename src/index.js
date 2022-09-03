@@ -1,6 +1,7 @@
 import './css/styles.css';
 import { fetchCountries } from './fetchCountries';
 import { refs } from './refs';
+import Notiflix from 'notiflix';
 const debounce = require('lodash.debounce');
 const DEBOUNCE_DELAY = 300;
 
@@ -17,13 +18,14 @@ function onInput(e) {
       console.log(country);
       return country;
     })
-    .then(renderCountryList);
+    .then(renderCountryList)
+    .catch(error => {
+      console.log(error);
+      Notiflix.Notify.failure('Oops, there is no country with that name');
+    });
 }
 
 function renderCountryList(country) {
-  // if (!country) {
-  //   return alert('no country');
-  // }
   const countries = country
     .map(country => {
       return `<li class='country-list__item'>
@@ -48,13 +50,17 @@ function renderCountryList(country) {
     .join('');
 
   if (country.length > 10) {
-    alert('Too many matches found. Please enter a more specific name.');
+    Notiflix.Notify.info(
+      'Too many matches found. Please enter a more specific name.'
+    );
     return;
   }
+
   if (country.length === 1) {
     clearCountry();
     refs.countryInfo.insertAdjacentHTML('beforeend', oneCountry);
   }
+
   if (country.length > 1) {
     clearCountry();
     refs.countryList.insertAdjacentHTML('beforeend', countries);
